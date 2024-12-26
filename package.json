@@ -1,0 +1,19 @@
+{
+  "name": "fair_whitelist_raffle_technology-",
+  "module": "index.ts",
+  "type": "module",
+  "devDependencies": {
+    "@types/bun": "latest"
+  },
+  "peerDependencies": {
+    "typescript": "^5.0.0"
+  },
+  "dependencies": {
+    "@covalenthq/client-sdk": "^2.2.2"
+  },
+  "scripts": {
+    "clean": "bun run clean.ts",
+    "fetch": "bun run fetch.ts",
+    "raffle": "bun run index.ts"
+  }
+}
