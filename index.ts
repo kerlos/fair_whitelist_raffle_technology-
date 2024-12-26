@@ -1,6 +1,7 @@
 import { Database } from "bun:sqlite";
 import type { HolderDTO, TotalTokenHolder } from "./types";
-import { writeFileSync } from 'fs';
+import { writeFileSync } from "fs";
+import { shuffle } from 'radash'
 
 
 const db = new Database("db.sqlite");
@@ -59,18 +60,31 @@ while (true) {
   page++;
 }
 
-function weightedRandomSelection(holders: TotalTokenHolder[], numWinners: number): TotalTokenHolder[] {
-  const totalTokens = holders.reduce((sum, holder) => sum + holder.total, BigInt(0));
+function weightedRandomSelection(
+  holders: TotalTokenHolder[],
+  numWinners: number
+): TotalTokenHolder[] {
+  const totalTokens = holders.reduce(
+    (sum, holder) => sum + holder.total,
+    BigInt(0)
+  );
+  const weights = holders.map(
+    (holder) => Number(holder.total) / Number(totalTokens)
+  );
   const winners: TotalTokenHolder[] = [];
 
   for (let i = 0; i < numWinners; i++) {
-    let randomValue = BigInt(Math.floor(Math.random() * Number(totalTokens)));
-    for (const holder of holders) {
-      if (randomValue < holder.total) {
-        winners.push(holder);
+    // The weights are calculated as the proportion of each holder's total tokens to the total tokens of all holders.
+    // By iterating through the holders and subtracting their weight from `randomValue`, we effectively perform a weighted random selection.
+    // When `randomValue` falls below a holder's weight, that holder is selected as a winner.
+    // This ensures that holders with more tokens have a higher chance of being selected.
+    let randomValue = Math.random();
+    for (let j = 0; j < holders.length; j++) {
+      if (randomValue < weights[j]) {
+        winners.push(holders[j]);
         break;
       }
-      randomValue -= holder.total;
+      randomValue -= weights[j];
     }
   }
 
@@ -93,14 +107,19 @@ const winnersTable = winners.map((winner) => ({
 console.log("Winning addresses and their total holdings:");
 console.table(winnersTable);
 
-
 const output = [
-  ['Address', 'Total', 'AR', 'AISTR', 'ALCH'],
-  ...winnersTable.map(winner => 
-    [winner.address, winner.total, winner.ar, winner.aistr, winner.alch]
-  )
-].map(row => row.join(',')).join('\n');
+  ["Address", "Total", "AR", "AISTR", "ALCH"],
+  ...winnersTable.map((winner) => [
+    winner.address,
+    winner.total,
+    winner.ar,
+    winner.aistr,
+    winner.alch,
+  ]),
+]
+  .map((row) => row.join(","))
+  .join("\n");
 
-writeFileSync('output.csv', output);
+writeFileSync("output.csv", output);
 
 console.log("Winners have been saved to output.csv");
