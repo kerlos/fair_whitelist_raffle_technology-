@@ -1,5 +1,7 @@
 import { Database } from "bun:sqlite";
 import type { HolderDTO, TotalTokenHolder } from "./types";
+import { writeFileSync } from 'fs';
+
 
 const db = new Database("db.sqlite");
 
@@ -90,3 +92,15 @@ const winnersTable = winners.map((winner) => ({
 
 console.log("Winning addresses and their total holdings:");
 console.table(winnersTable);
+
+
+const output = [
+  ['Address', 'Total', 'AR', 'AISTR', 'ALCH'],
+  ...winnersTable.map(winner => 
+    [winner.address, winner.total, winner.ar, winner.aistr, winner.alch]
+  )
+].map(row => row.join(',')).join('\n');
+
+writeFileSync('output.csv', output);
+
+console.log("Winners have been saved to output.csv");
