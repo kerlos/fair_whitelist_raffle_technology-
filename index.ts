@@ -53,7 +53,6 @@ while (true) {
       convertToBigint(holder.aistr) +
       convertToBigint(holder.alch);
     holders
-      .filter((holder) => !LP_ADDRESSES.includes(holder.address))
       .push({
         address: holder.address,
         ar: convertToBigint(holder.ar),
