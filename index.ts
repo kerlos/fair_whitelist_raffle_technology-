@@ -5,6 +5,11 @@ import weightedRandom from "./random";
 
 const db = new Database("db.sqlite");
 
+const LP_ADDRESSES = [
+  "0x197ecb5c176ad4f6e77894913a94c5145416f148",
+  "0x3fdd9a4b3ca4a99e3dfe931e3973c2ac37b45be9",
+  "0xf5677b22454dee978b2eb908d6a17923f5658a79",
+];
 const tableExists = db
   .query("SELECT name FROM sqlite_master WHERE type='table' AND name='holders'")
   .get() as { name: string } | undefined;
@@ -47,13 +52,15 @@ while (true) {
       convertToBigint(holder.ar) +
       convertToBigint(holder.aistr) +
       convertToBigint(holder.alch);
-    holders.push({
-      address: holder.address,
-      ar: convertToBigint(holder.ar),
-      aistr: convertToBigint(holder.aistr),
-      alch: convertToBigint(holder.alch),
-      total,
-    });
+    holders
+      .filter((holder) => !LP_ADDRESSES.includes(holder.address))
+      .push({
+        address: holder.address,
+        ar: convertToBigint(holder.ar),
+        aistr: convertToBigint(holder.aistr),
+        alch: convertToBigint(holder.alch),
+        total,
+      });
   });
 
   page++;
