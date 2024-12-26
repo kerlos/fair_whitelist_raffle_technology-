@@ -88,4 +88,5 @@ const winnersTable = winners.map((winner) => ({
   alch: formatBigint(winner.alch),
 }));
 
-console.log("Winning addresses and their total holdings:", console.table(winnersTable));
+console.log("Winning addresses and their total holdings:");
+console.table(winnersTable);
