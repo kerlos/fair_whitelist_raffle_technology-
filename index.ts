@@ -1,8 +1,7 @@
 import { Database } from "bun:sqlite";
 import type { HolderDTO, TotalTokenHolder } from "./types";
 import { writeFileSync } from "fs";
-import { shuffle } from 'radash'
-
+import weightedRandom from "./random";
 
 const db = new Database("db.sqlite");
 
@@ -74,18 +73,10 @@ function weightedRandomSelection(
   const winners: TotalTokenHolder[] = [];
 
   for (let i = 0; i < numWinners; i++) {
-    // The weights are calculated as the proportion of each holder's total tokens to the total tokens of all holders.
-    // By iterating through the holders and subtracting their weight from `randomValue`, we effectively perform a weighted random selection.
-    // When `randomValue` falls below a holder's weight, that holder is selected as a winner.
-    // This ensures that holders with more tokens have a higher chance of being selected.
-    let randomValue = Math.random();
-    for (let j = 0; j < holders.length; j++) {
-      if (randomValue < weights[j]) {
-        winners.push(holders[j]);
-        break;
-      }
-      randomValue -= weights[j];
-    }
+    const { item, index } = weightedRandom(holders, weights);
+    winners.push(item);
+    holders.splice(index, 1);
+    weights.splice(index, 1);
   }
 
   return winners;
