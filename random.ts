@@ -35,5 +35,7 @@ export default function weightedRandom<T>(items: T[], weights: number[]): { item
     }
   }
 
-  throw new Error("Failed to select an item"); // This line is added to satisfy TypeScript's requirement for a return statement
+  // This return statement is a fallback in case the loop does not return an item.
+  // It should never be reached if the input data is correct.
+  throw new Error("Failed to select an item");
 }
